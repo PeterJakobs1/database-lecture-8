@@ -1,13 +1,11 @@
 package no.kristiania.person;
 
+
 import org.junit.jupiter.api.Test;
 import org.postgresql.ds.PGSimpleDataSource;
-
 import javax.sql.DataSource;
-
 import java.sql.SQLException;
 import java.util.Random;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class PersonDaoTest {
@@ -19,7 +17,7 @@ public class PersonDaoTest {
         Person person = examplePerson();
         dao.save(person);
 
-        assertThat(dao.retrieve(person.getId()))
+        assertThat(dao.retrieve((Long) person.getId()))
                 .usingRecursiveComparison()
                 .isEqualTo(person);
 

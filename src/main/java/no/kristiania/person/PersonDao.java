@@ -3,6 +3,7 @@ package no.kristiania.person;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class PersonDao {
@@ -34,7 +35,23 @@ public class PersonDao {
 
     }
 
-    public Person retrieve(Object id) {
-        return person;
+    public Person retrieve(Long id) throws SQLException {
+
+        try (Connection connection = dataSorce.getConnection()) {
+
+            try (PreparedStatement statement = connection.prepareStatement(
+                    "select * from people where id = ?"
+            )) {
+                statement.setLong(1,id);
+                try (ResultSet rs = statement.executeQuery()) {
+                    rs.next();
+
+                    Person person = new Person();
+                    person.setFirstName(rs.getString("firstname"));
+                    person.setLastName(rs.getString("lastname"));
+                    return person;
+                }
+            }
+        }
     }
 }
