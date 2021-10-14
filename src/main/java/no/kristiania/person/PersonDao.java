@@ -1,15 +1,12 @@
 package no.kristiania.person;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class PersonDao {
 
     private final DataSource dataSorce;
-    private Person person;
+
 
     public PersonDao(DataSource dataSorce) {
 
@@ -20,17 +17,23 @@ public class PersonDao {
         try (Connection connection = dataSorce.getConnection()) {
 
             try (PreparedStatement statement = connection.prepareStatement(
-                    "insert into people(firstname, lastname) values (?,?)"
+                    "insert into people(firstname, lastname) values (?,?)",
+                    Statement.RETURN_GENERATED_KEYS
 
             )) {
                 statement.setString(1,person.getFirstname());
                 statement.setString(2,person.getLastName());
 
                 statement.executeUpdate();
+
+                try (ResultSet rs  = statement.getGeneratedKeys()) {
+                    rs.next();
+                    person.setId(rs.getLong("id"));
+                }
             }
 
         }
-        this.person = person;
+
 
 
     }
@@ -47,6 +50,7 @@ public class PersonDao {
                     rs.next();
 
                     Person person = new Person();
+                    person.setId(rs.getLong("id"));
                     person.setFirstName(rs.getString("firstname"));
                     person.setLastName(rs.getString("lastname"));
                     return person;
